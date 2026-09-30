@@ -1,0 +1,46 @@
+sources:
+  - name: ایرنا
+    type: rss
+    url: https://www.irna.ir/rss
+    enabled: true
+  - name: ایسنا
+    type: rss
+    url: https://www.isna.ir/rss
+    enabled: true
+  - name: مهر
+    type: rss
+    url: https://www.mehrnews.com/rss
+    enabled: true
+  - name: فارس
+    type: rss
+    url: https://www.farsnews.ir/rss
+    enabled: true
+  - name: تسنیم
+    type: rss
+    url: https://www.tasnimnews.com/fa/rss/feed/0/8/0
+    enabled: true
+  - name: ایلنا
+    type: rss
+    url: https://www.ilna.ir/rss
+    enabled: true
+  - name: باشگاه خبرنگاران جوان
+    type: rss
+    url: https://www.yjc.ir/fa/rss
+    enabled: true
+  - name: خبرآنلاین
+    type: rss
+    url: https://www.khabaronline.ir/rss
+    enabled: true
+  - name: تابناک
+    type: rss
+    url: https://www.tabnak.ir/fa/rss
+    enabled: true
+  - name: عصر ایران
+    type: rss
+    url: https://www.asriran.com/rss
+    enabled: true
+telegram_channels:
+  # - name: نام کانال
+  #   type: telegram
+  #   username: channel_username
+  #   enabled: true
