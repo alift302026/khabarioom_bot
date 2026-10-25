@@ -129,6 +129,28 @@ async def search(update, context):
     await update.message.reply_text(message[:3900], disable_web_page_preview=True)
 
 
+async def test_post(update, context):
+    settings = context.application.bot_data["settings"]
+    if not update.effective_user or update.effective_user.id not in settings.admin_user_ids:
+        return
+    try:
+        sent = await context.bot.send_message(
+            settings.channel_id,
+            "🧪 <b>آزمون ربات خبریوم</b>\n\n"
+            "ارسال پیام به کانال موفق است. این پیام آزمایشی است و خبر واقعی نیست.\n\n"
+            "#آزمایش #خبریوم\n@khabarioom",
+            parse_mode="HTML",
+        )
+        await update.message.reply_text(
+            f"پیام آزمایشی به کانال ارسال شد. شناسه پیام: {sent.message_id}"
+        )
+    except Exception as exc:
+        await update.message.reply_text(
+            "ارسال آزمایشی ناموفق بود. دسترسی ادمین/ارسال پیام کانال و CHANNEL_ID را بررسی کنید."
+        )
+        print("[TEST POST ERROR]", exc)
+
+
 async def sources(update, context):
     settings = context.application.bot_data["settings"]
     if not update.effective_user or update.effective_user.id not in settings.admin_user_ids:
@@ -163,8 +185,9 @@ def main():
     app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("search", search))
     app.add_handler(CommandHandler("sources", sources))
+    app.add_handler(CommandHandler("test", test_post))
     app.job_queue.run_repeating(
-        cycle, interval=settings.fetch_interval_minutes * 60, first=5
+        cycle, interval=settings.fetch_interval_minutes * 60, first=settings.fetch_interval_minutes * 60
     )
     app.run_polling(allowed_updates=["message"])
 
