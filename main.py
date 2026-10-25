@@ -27,12 +27,12 @@ async def publish(bot, db, settings, article):
     if not article.url or await db.seen(article.url):
         return False
 
+    article = await enrich(article, settings)
     priority = is_priority(article)
     # This is a keyword heuristic, not independent verification of breaking news.
     if is_quiet_hours(settings) and not priority:
         return False
 
-    article = await enrich(article, settings)
     parts = split_text(build_caption(article, settings), settings.max_message_chars)
     try:
         sent = None
