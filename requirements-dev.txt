@@ -1,0 +1,2 @@
+# Development / CI-only dependencies (not needed in production).
+pytest==9.1.1
