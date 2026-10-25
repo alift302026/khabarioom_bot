@@ -1,7 +1,7 @@
 import feedparser,httpx,yaml,re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from .models import Article
+from models import Article
 class SourceManager:
     def __init__(self,settings): self.s=settings; self.headers={'User-Agent':settings.user_agent}
     def load_sources(self,path='sources.yaml'):
