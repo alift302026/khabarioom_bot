@@ -1,6 +1,10 @@
 .git
 .env
 .venv
+venv
 __pycache__
 *.pyc
-data/*.sqlite3
+data/
+tests/
+.pytest_cache/
+requirements-dev.txt
