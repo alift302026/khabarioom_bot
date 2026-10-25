@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
+from daily_reports import send_weather, send_market, send_wisdom
 
 from telegram.ext import Application, CommandHandler
 
@@ -189,6 +190,10 @@ def main():
     app.job_queue.run_repeating(
         cycle, interval=settings.fetch_interval_minutes * 60, first=settings.fetch_interval_minutes * 60
     )
+    report_tz = ZoneInfo(settings.timezone)
+    app.job_queue.run_daily(send_weather, time=datetime.strptime("07:15", "%H:%M").time().replace(tzinfo=report_tz))
+    app.job_queue.run_daily(send_market, time=datetime.strptime("08:00", "%H:%M").time().replace(tzinfo=report_tz))
+    app.job_queue.run_daily(send_wisdom, time=datetime.strptime("09:00", "%H:%M").time().replace(tzinfo=report_tz))
     app.run_polling(allowed_updates=["message"])
 
 
