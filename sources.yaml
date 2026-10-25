@@ -7,40 +7,49 @@ sources:
     type: rss
     url: https://www.isna.ir/rss
     enabled: true
-  - name: مهر
-    type: rss
-    url: https://www.mehrnews.com/rss
-    enabled: true
   - name: فارس
     type: rss
     url: https://www.farsnews.ir/rss
+    enabled: true
+  - name: کیهان
+    type: rss
+    url: https://kayhan.ir/fa/rss/allnews
     enabled: true
   - name: تسنیم
     type: rss
     url: https://www.tasnimnews.com/fa/rss/feed/0/8/0
     enabled: true
-  - name: ایلنا
+  - name: صداوسیما
     type: rss
-    url: https://www.ilna.ir/rss
+    url: https://www.iribnews.ir/fa/rss/allnews
     enabled: true
   - name: باشگاه خبرنگاران جوان
     type: rss
     url: https://www.yjc.ir/fa/rss
     enabled: true
+  - name: مشرق
+    type: rss
+    url: https://www.mashreghnews.ir/rss
+    enabled: true
+  - name: میزان
+    type: rss
+    url: https://www.mizanonline.ir/fa/rss/allnews
+    enabled: true
   - name: خبرآنلاین
     type: rss
     url: https://www.khabaronline.ir/rss
     enabled: true
-  - name: تابناک
+  - name: دنیای اقتصاد
     type: rss
-    url: https://www.tabnak.ir/fa/rss
+    url: https://donya-e-eqtesad.com/rss
     enabled: true
-  - name: عصر ایران
+  - name: نورنیوز
     type: rss
-    url: https://www.asriran.com/rss
+    url: https://nournews.ir/fa/rss
     enabled: true
-telegram_channels:
-  # - name: نام کانال
-  #   type: telegram
-  #   username: channel_username
-  #   enabled: true
+  - name: اعتماد آنلاین
+    type: rss
+    url: https://www.etemadonline.com/rss
+    enabled: true
+
+telegram_channels: []
