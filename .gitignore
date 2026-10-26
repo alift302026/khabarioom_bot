@@ -1,7 +1,18 @@
+# Secrets — never commit
 .env
 *.session
+
+# Local databases
+data/
+*.sqlite3
+*.sqlite
+*.db
+
+# Python
 __pycache__/
 *.pyc
-data/*.db
-data/*.sqlite
 .venv/
+venv/
+
+# Tooling
+.pytest_cache/

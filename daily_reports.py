@@ -1,11 +1,25 @@
+"""Scheduled daily reports: Tehran weather, market summary and daily wisdom."""
+
+from __future__ import annotations
+
 import html
+import logging
 import os
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
 
-TEHRAN = ZoneInfo("Asia/Tehran")
+LOGGER = logging.getLogger("khabarioom.reports")
+
+try:
+    TEHRAN = ZoneInfo("Asia/Tehran")
+except (ZoneInfoNotFoundError, ValueError) as exc:  # pragma: no cover - env issue
+    raise RuntimeError(
+        "Time zone 'Asia/Tehran' is unavailable. Install the 'tzdata' package"
+        " (it is included in requirements.txt): pip install tzdata"
+    ) from exc
+
 TEHRAN_LAT = 35.6892
 TEHRAN_LON = 51.3890
 TIMEOUT = 15
@@ -23,6 +37,7 @@ WISDOM = [
 
 def _find_assets(payload):
     found = {}
+
     def walk(node):
         if isinstance(node, dict):
             asset_id = node.get("assetId") or node.get("asset_id") or node.get("id")
@@ -34,23 +49,26 @@ def _find_assets(payload):
         elif isinstance(node, list):
             for value in node:
                 walk(value)
+
     walk(payload)
     return found
 
 
-def _fmt_toman(value):
+def _fmt_toman(value) -> str:
     try:
         return f"{int(float(value)):,}".replace(",", "٬") + " تومان"
     except (ValueError, TypeError):
         return "در دسترس نیست"
 
 
-async def market_report():
+async def market_report() -> str:
     api_key = os.getenv("ARZHAAM_API_KEY", "").strip()
-    values = {}
+    values: dict[str, str] = {}
     if api_key:
         try:
-            async with httpx.AsyncClient(timeout=TIMEOUT, follow_redirects=True) as client:
+            async with httpx.AsyncClient(
+                timeout=TIMEOUT, follow_redirects=True
+            ) as client:
                 response = await client.get(
                     "https://arzhaam.ir/api/rates/latest",
                     headers={"X-App-Key": api_key},
@@ -64,16 +82,22 @@ async def market_report():
                 "سکه امامی": ("coin_emami",),
                 "طلای آب‌شده": ("abshodeh",),
             }.items():
-                asset = next((assets[a] for a in aliases if a in assets), None)
-                values[key] = _fmt_toman(asset.get("price")) if asset else "در دسترس نیست"
+                asset = next(
+                    (assets[alias] for alias in aliases if alias in assets), None
+                )
+                values[key] = (
+                    _fmt_toman(asset.get("price")) if asset else "در دسترس نیست"
+                )
         except Exception as exc:
-            print("[MARKET DATA ERROR]", exc)
+            LOGGER.warning("Market data error: %s", exc)
     else:
-        print("[MARKET DATA] ARZHAAM_API_KEY is not configured")
+        LOGGER.info("ARZHAAM_API_KEY is not configured; local prices unavailable")
 
     oil = "در دسترس نیست"
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT, follow_redirects=True) as client:
+        async with httpx.AsyncClient(
+            timeout=TIMEOUT, follow_redirects=True
+        ) as client:
             response = await client.get(
                 "https://query1.finance.yahoo.com/v8/finance/chart/CL=F",
                 params={"range": "1d", "interval": "1d"},
@@ -85,18 +109,29 @@ async def market_report():
             if price is not None:
                 oil = f"{float(price):,.2f} دلار"
     except Exception as exc:
-        print("[OIL DATA ERROR]", exc)
+        LOGGER.warning("Oil data error: %s", exc)
 
-    names = ["دلار آزاد", "طلای ۱۸ عیار", "بیت‌کوین", "نفت خام WTI", "سکه امامی", "طلای آب‌شده"]
+    names = [
+        "دلار آزاد",
+        "طلای ۱۸ عیار",
+        "بیت‌کوین",
+        "نفت خام WTI",
+        "سکه امامی",
+        "طلای آب‌شده",
+    ]
     lines = []
     for name in names:
-        value = oil if name == "نفت خام WTI" else values.get(name, "دادهٔ قیمت تنظیم نشده")
+        value = oil if name == "نفت خام WTI" else values.get(name, "در دسترس نیست")
         lines.append(f"• {name}: {value}")
     stamp = datetime.now(TEHRAN).strftime("%Y/%m/%d - %H:%M")
-    return "📊 <b>گزارش روزانهٔ بازار</b>\n\n" + "\n".join(lines) + f"\n\n🕒 به‌روزرسانی: {stamp} به وقت تهران\n@khabarioom"
+    return (
+        "📊 <b>گزارش روزانهٔ بازار</b>\n\n"
+        + "\n".join(lines)
+        + f"\n\n🕒 به‌روزرسانی: {stamp} به وقت تهران\n@khabarioom"
+    )
 
 
-async def weather_report():
+async def weather_report() -> str:
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
         response = await client.get(
             "https://api.open-meteo.com/v1/forecast",
@@ -118,8 +153,10 @@ async def weather_report():
     high = (daily.get("temperature_2m_max") or [None])[0]
     humidity = current.get("relative_humidity_2m")
     wind = current.get("wind_speed_10m")
+
     def value(v, suffix=""):
         return "نامشخص" if v is None else f"{v}{suffix}"
+
     stamp = datetime.now(TEHRAN).strftime("%Y/%m/%d")
     return (
         f"🌤 <b>آب‌وهوای تهران | {stamp}</b>\n\n"
@@ -130,7 +167,7 @@ async def weather_report():
     )
 
 
-def wisdom_report():
+def wisdom_report() -> str:
     day = datetime.now(TEHRAN).timetuple().tm_yday
     topic, line, attribution = WISDOM[(day - 1) % len(WISDOM)]
     return (
@@ -148,7 +185,7 @@ async def send_weather(context):
             parse_mode="HTML",
         )
     except Exception as exc:
-        print("[WEATHER REPORT ERROR]", exc)
+        LOGGER.error("Weather report error: %s", exc)
 
 
 async def send_market(context):
@@ -159,7 +196,7 @@ async def send_market(context):
             parse_mode="HTML",
         )
     except Exception as exc:
-        print("[MARKET REPORT ERROR]", exc)
+        LOGGER.error("Market report error: %s", exc)
 
 
 async def send_wisdom(context):
@@ -170,4 +207,4 @@ async def send_wisdom(context):
             parse_mode="HTML",
         )
     except Exception as exc:
-        print("[WISDOM REPORT ERROR]", exc)
+        LOGGER.error("Wisdom report error: %s", exc)

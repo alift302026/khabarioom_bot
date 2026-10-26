@@ -1,0 +1,34 @@
+# Template: send the market report daily at 08:00 Tehran time.
+#
+# Owner must copy this file to: .github/workflows/report-market.yml
+# Tehran is UTC+3:30 (Iran abolished DST in 2022), so 08:00 Tehran = 04:30 UTC.
+# Local prices (USD/gold/coin/BTC) need the ARZHAAM_API_KEY secret; without it
+# those rows are sent as "در دسترس نیست" while WTI oil still works.
+
+name: Daily market report
+
+on:
+  schedule:
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Send market report
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHANNEL_ID: ${{ vars.CHANNEL_ID }}
+          ARZHAAM_API_KEY: ${{ secrets.ARZHAAM_API_KEY }}
+        run: python tools/send_report.py market

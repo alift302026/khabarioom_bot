@@ -1,0 +1,31 @@
+# Template: send the Tehran weather report daily at 07:15 Tehran time.
+#
+# Owner must copy this file to: .github/workflows/report-weather.yml
+# Tehran is UTC+3:30 (Iran abolished DST in 2022), so 07:15 Tehran = 03:45 UTC.
+
+name: Daily weather report
+
+on:
+  schedule:
+    - cron: "45 3 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Send weather report
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHANNEL_ID: ${{ vars.CHANNEL_ID }}
+        run: python tools/send_report.py weather

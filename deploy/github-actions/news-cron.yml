@@ -1,0 +1,50 @@
+# Template: post fresh news every 30 minutes via GitHub Actions.
+#
+# The Arena agent cannot commit files under .github/workflows/ (missing token
+# permission), so the owner must copy this file to:
+#
+#   .github/workflows/news-cron.yml
+#
+# Required repository secrets:
+#   TELEGRAM_BOT_TOKEN  (Settings -> Secrets and variables -> Actions)
+# Optional repository variables:
+#   CHANNEL_ID          (defaults to @khabarioom when unset)
+#   ADMIN_USER_IDS      (comma-separated; only needed for the real bot)
+#   ARZHAAM_API_KEY     (only affects the market report)
+
+name: News cron
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  fetch-and-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Restore seen-articles database
+        uses: actions/cache@v4
+        with:
+          path: /tmp/khabarioom.sqlite3
+          key: khabarioom-db-${{ github.run_id }}
+          restore-keys: khabarioom-db-
+      - name: Post fresh news
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHANNEL_ID: ${{ vars.CHANNEL_ID }}
+          ARZHAAM_API_KEY: ${{ secrets.ARZHAAM_API_KEY }}
+          DATABASE_PATH: /tmp/khabarioom.sqlite3
+          FETCH_INTERVAL_MINUTES: "30"
+          REQUEST_TIMEOUT_SECONDS: "20"
+        run: python tools/send_one_news.py --max 5
