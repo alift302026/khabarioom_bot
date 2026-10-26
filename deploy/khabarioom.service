@@ -1,0 +1,20 @@
+[Unit]
+Description=Khabarioom Telegram news bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Adjust User/WorkingDirectory/EnvironmentFile to your server layout.
+User=khabarioom
+WorkingDirectory=/opt/khabarioom
+EnvironmentFile=/opt/khabarioom/.env
+ExecStart=/opt/khabarioom/.venv/bin/python main.py
+Restart=always
+RestartSec=10
+# Hardening (optional but recommended)
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

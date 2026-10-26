@@ -108,9 +108,11 @@ python tools/send_one_news.py --force     # ساعات سکوت (۰۱–۰۷ ت�
 
 این اسکریپت دقیقاً از همان خط‌لولهٔ ربات استفاده می‌کند (منابع ← جلوگیری از تکرار ← استخراج ← کپشن ← انتشار) و به `.env` با توکن واقعی روی دستگاه شما نیاز دارد. اجرای آن بدون `--dry-run` یعنی انتشار پیام واقعی در کانال.
 
-## 9. استقرار روی Railway
+## 9. اجرای دائمی ۲۴/۷ (وقتی سیستم خاموش است)
 
-Repository را به GitHub وصل کنید، در Railway از GitHub Deploy بگیرید، Variables را مطابق بخش ۲–۴ وارد کنید و Deploy بزنید. برای SQLite حتماً Volume پایدار بسازید و `DATABASE_PATH` را داخل همان Volume بگذارید؛ برای مقیاس بالاتر PostgreSQL مناسب‌تر است. `Dockerfile` و `railway.toml` آماده‌اند (پایهٔ Docker: python:3.12-slim).
+راهنمای کامل هر سه روش — Railway (پیشنهادی)، VPS با systemd، و GitHub Actions رایگان — به‌همراه چک‌لیست پس از استقرار در فایل **`DEPLOY_FA.md`** آمده است. فایل‌های آماده: `Dockerfile`، `railway.toml`، `deploy/khabarioom.service` و `deploy/github-actions/*.yml`.
+
+خلاصهٔ Railway: Repository را به GitHub وصل کنید، در Railway از GitHub Deploy بگیرید، Variables را مطابق بخش ۲–۴ وارد کنید و Deploy بزنید. برای SQLite حتماً Volume پایدار بسازید و `DATABASE_PATH` را داخل همان Volume بگذارید.
 
 ## 10. حق نشر
 

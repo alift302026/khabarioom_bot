@@ -72,9 +72,15 @@ python -m pytest -q
 
 تنظیمات کامل با توضیح در `.env.example` آمده است.
 
-## استقرار با Docker/Railway
+## اجرای دائمی (وقتی سیستم خاموش است)
 
-از این ریپو Deploy کنید و متغیرهای لازم را در بخش Variables/Environment تنظیم کنید. برای SQLite یک Volume پایدار متصل کنید (مسیر `DATABASE_PATH` داخل Volume باشد). توکن را داخل فایل‌های ریپو ننویسید.
+ربات برای کار ۲۴/۷ باید روی سرور اجرا شود، نه کامپیوتر شخصی. سه راه آماده است:
+
+- **Railway** (پیشنهادی): از ریپو Deploy کنید؛ `Dockerfile` و `railway.toml` آماده‌اند. برای SQLite یک Volume پایدار متصل کنید و `DATABASE_PATH` را داخل همان Volume بگذارید. توکن را فقط در Variables/Secrets میزبان بنویسید.
+- **VPS با systemd**: فایل آمادهٔ `deploy/khabarioom.service` با `Restart=always`.
+- **GitHub Actions** (رایگان، محدود): قالب‌های آماده در `deploy/github-actions/` — خبر هر ۳۰ دقیقه و سه گزارش روزانه در ساعت تهران (UTC+3:30).
+
+جزئیات گام‌به‌گام هر سه روش + چک‌لیست پس از استقرار: **`DEPLOY_FA.md`**.
 
 ## CI
 
